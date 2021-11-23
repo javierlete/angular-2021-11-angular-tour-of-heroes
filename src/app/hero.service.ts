@@ -14,19 +14,38 @@ export class HeroService {
 
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl).pipe(
-      catchError(_ => {
-        this.messageService.add('Error al obtener los heroes');
-        return of([]);
-      }) // of([{ id: 1, name: 'Javier Lete' }, { id: 2, name: 'Pepe Pérez' }]))
+      catchError(this.handleError<Hero[]>('getHeroes', []))
     );
   }
 
   getHero(id: number): Observable<Hero> {
     return this.http.get<Hero>(`${this.heroesUrl}${id}`).pipe(
-      catchError(_ => {
-        this.messageService.add('Error al obtener el heroe id ' + id);
-        return of();
-      })
+      catchError(this.handleError<Hero>(`getHero(${id})`))
     );
+  }
+
+  /** Log a HeroService message with the MessageService */
+  private log(message: string) {
+    this.messageService.add(`HeroService: ${message}`);
+  }
+
+  /**
+ * Handle Http operation that failed.
+ * Let the app continue.
+ * @param operation - name of the operation that failed
+ * @param result - optional value to return as the observable result
+ */
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      this.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
   }
 }
