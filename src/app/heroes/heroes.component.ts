@@ -10,9 +10,9 @@ import { MessageService } from '../message.service';
 })
 export class HeroesComponent implements OnInit {
   heroes: Hero[] = [];
-  
+
   constructor(private heroService: HeroService, private messageService: MessageService) { }
-  
+
   ngOnInit(): void {
     this.getHeroes();
   }
@@ -23,5 +23,14 @@ export class HeroesComponent implements OnInit {
     // this.heroService.getHeroes().subscribe(
     //   (function(heroes: Hero[]) { this.heroes = heroes }).bind(this)
     // );
+  }
+
+  add(name: string): void {
+    name = name.trim();
+    if (!name) { return; }
+    this.heroService.addHero({ name } as Hero)
+      .subscribe(hero => {
+        this.heroes.push(hero);
+      });
   }
 }
