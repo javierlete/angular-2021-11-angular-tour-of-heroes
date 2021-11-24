@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 
 import {
-  debounceTime, distinctUntilChanged, switchMap
+  debounceTime, distinctUntilChanged, switchMap, tap
 } from 'rxjs/operators';
 
 import { Hero } from '../hero';
 import { HeroService } from '../hero.service';
+import { MessageService } from '../message.service';
 
 @Component({
   selector: 'app-hero-search',
@@ -18,21 +19,25 @@ export class HeroSearchComponent implements OnInit {
   heroes$!: Observable<Hero[]>;
   private searchTerms = new Subject<string>();
 
-  constructor(private heroService: HeroService) { }
+  constructor(private heroService: HeroService) { } //, private messageService: MessageService) { }
 
   // Push a search term into the observable stream.
   search(term: string): void {
+    // this.messageService.add('EVENTO: ' + term);
     this.searchTerms.next(term);
   }
 
   ngOnInit(): void {
     this.heroes$ = this.searchTerms.pipe(
+      tap(term => console.log('ANTES DE DEBOUNCE', term)),
       // wait 300ms after each keystroke before considering the term
       debounceTime(300),
 
+      tap(term => console.log('ANTES DE DISTINCT', term)),
       // ignore new term if same as previous term
       distinctUntilChanged(),
 
+      tap(term => console.log('ANTES DE SWITCH', term)),
       // switch to new search observable each time the term changes
       switchMap((term: string) => this.heroService.searchHeroes(term)),
     );
